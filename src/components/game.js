@@ -1,8 +1,13 @@
 import React from 'react';
 import '../index.css';
 import Square from './square.js';
-import background from "../malina.ico";
+import backBall from "../malina.ico";
+import backY from "../038.gif";
 import GameEngine from './gameengine.js';
+
+//const {boardFile} = require('./ExamInput2.js');   //CommonJS
+
+import boardFile from './ExamInput2.js';
 
 
 export default class Game extends React.Component {
@@ -11,7 +16,7 @@ export default class Game extends React.Component {
     super(props);
     this.tick = this.tick.bind(this);
     this.state = {
-      ballPosition: 8,
+      ballPosition: 13,
       seconds: props.seconds,
     }
     this.isGameStarted = false;
@@ -19,7 +24,7 @@ export default class Game extends React.Component {
 
   componentDidMount(){
     this.timer = setInterval(this.tick, 400);
-  }
+  };
 
   tick(){
     if (this.state.seconds > 0) {
@@ -28,11 +33,12 @@ export default class Game extends React.Component {
       if(this.isGameStarted){
         clearInterval(this.timer);
         //tu co ma być wykonywane co jakiś czas
-        let x = GameEngine(this.state.ballPosition).newPosition;
+        let x = GameEngine(this.state.ballPosition, boardFile).newPosition;
         this.setState({ ballPosition: x });
+        //boardFile[1][13] = 0;
       }
     }
-  }
+  };
 
   //button handlers
   onClickHandler1=()=>{
@@ -52,48 +58,99 @@ export default class Game extends React.Component {
   
   onClickHandler=()=>{
     clearInterval();
-    let x= 1 + this.state.ballPosition;
+    let x = 1 + this.state.ballPosition;
     x = GameEngine(this.state.ballPosition).newPosition;
 
     this.setState({ ballPosition: x });
+    boardFile.board[1][1] = '0';
+    boardFile.board[1][2] = '1';
    // console.log(this.state.ballPosition);
-  }
+  };
 
-  renderSquare(i, squareShade) {
-    return <Square
+  renderSquare(i, squareShade, typeSquare) {
+    //testowo dla piłki i dla Y
+  //  if(i === this.state.ballPosition) typeSquare = '1';
+   // if(i === 18) typeSquare = 'Y';
+    let SquareBackground;
+
+    if(typeSquare === '1'){           //ball square
+      SquareBackground = backBall;
+      console.log("ball: " + i);
+    }else if(typeSquare === 'Y'){     //Y square
+      SquareBackground = backY;
+      console.log("Y: " + i);
+    };
+
+
+    if(typeSquare === 'X' || typeSquare === '0'){
+      return <Square
       key={i}
       keyVal={i}
       shade={squareShade}
-      style = {i===this.state.ballPosition?{backgroundImage: `url(${background})`, backgroundRepeat: 'no-repeat'}:{}}
-    />
-  }  
+     />
+    }else{
+      return <Square
+      key={i}
+      keyVal={i}
+      shade={squareShade}
+      style = {{backgroundImage: `url(${SquareBackground})`, backgroundRepeat: 'no-repeat'}}
+      />  
+    }
+
+  };
 
   render() {
     const board = [];
-    const squareRowFirst = [];
-    const squareRowLast = [];
-    const boardX=7;
-    const boardY=10;
-    //first row
-    for (let i = 0; i < boardX; i++) {
-      squareRowFirst.push(this.renderSquare((i), "brick-square"));  
-    }
-    board.push(<div className="board-row" key={0}>{squareRowFirst}</div>)
-    //inner rows
-    for (let i = 1; i < boardY-1; i++) {
-      const squareRows = [];
-      squareRows.push(this.renderSquare((i * boardX) , "brick-square"));
-      for (let j = 1; j < boardX-1; j++) {
-        squareRows.push(this.renderSquare((i * boardX) + j, "grass-square"));
-      }
-      squareRows.push(this.renderSquare((i * boardX) + boardY-1, "brick-square"));
-      board.push(<div className="board-row" key={i}>{squareRows}</div>)
-    }
-    //last row
-    for (let i = (boardX * boardY) - boardX; i < boardX * boardY; i++) {
-      squareRowLast.push(this.renderSquare((i), "brick-square"));  
-    }
-    board.push(<div className="board-row" key={boardY}>{squareRowLast}</div>)  
+    // const squareRowFirst = [];
+    // const squareRowLast = [];
+    // const boardX=7;
+    // const boardY=10;
+    //let typeSquare = 0;
+
+
+    //console.log(boardFile.board.length);
+
+    for (let i = 0; i < boardFile.board.length ; i++) {
+      let squareRow = [];
+      //console.log("row: " + i + " " + boardFile.board[i].length);
+      for (let j = 0; j < boardFile.board[i].length ; j++) {
+         if(boardFile.board[i][j] === '0') {
+             squareRow.push(this.renderSquare((i*12 + j), "grass-square", boardFile.board[i][j]));
+         }else if(boardFile.board[i][j] === '1'){
+             squareRow.push(this.renderSquare((i*12 + j), "grass-square", boardFile.board[i][j]));
+         }else if(boardFile.board[i][j] === 'Y'){
+             squareRow.push(this.renderSquare((i*12 + j), "grass-square", boardFile.board[i][j]));
+         }else if(boardFile.board[i][j] === 'X'){
+             squareRow.push(this.renderSquare((i*12 + j), "brick-square", boardFile.board[i][j]));
+         };
+      };
+      board.push(<div className="board-row" key={(i+1000)}>{squareRow}</div>);
+    };
+    
+
+
+
+
+    // //first row
+    // for (let i = 0; i < boardX; i++) {
+    //   squareRowFirst.push(this.renderSquare((i), "brick-square", typeSquare));  
+    // }
+    // board.push(<div className="board-row" key={0}>{squareRowFirst}</div>)
+    // //inner rows
+    // for (let i = 1; i < boardY-1; i++) {
+    //   const squareRows = [];
+    //   squareRows.push(this.renderSquare((i * boardX) , "brick-square", typeSquare));
+    //   for (let j = 1; j < boardX-1; j++) {
+    //     squareRows.push(this.renderSquare((i * boardX) + j, "grass-square", typeSquare));
+    //   }
+    //   squareRows.push(this.renderSquare((i * boardX) + boardY-1, "brick-square", typeSquare));
+    //   board.push(<div className="board-row" key={i}>{squareRows}</div>)
+    // }
+    // //last row
+    // for (let i = (boardX * boardY) - boardX; i < boardX * boardY; i++) {
+    //   squareRowLast.push(this.renderSquare((i), "brick-square", typeSquare));  
+    // }
+    // board.push(<div className="board-row" key={boardY}>{squareRowLast}</div>)  
 
 
     return (
@@ -110,5 +167,5 @@ export default class Game extends React.Component {
         </div>
       </div>
     );
-  }
-}
+  };
+};

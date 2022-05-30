@@ -1,12 +1,12 @@
 //Game engine - calculating new position and detect collisions
-export default function GameEngine(position) {
+export default function GameEngine(position, board) {
 
     let isEndGame = false;
     let newPosition = position;
-    if(newPosition===8){
-        newPosition=9;
+    if(newPosition===13){
+        newPosition=14;
     }else{
-        newPosition=8;
+        newPosition=13;
     }
 
     return ({newPosition, isEndGame});
