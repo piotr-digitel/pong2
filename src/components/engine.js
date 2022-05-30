@@ -1,4 +1,4 @@
-const {board} = require('./ExamInput.js');   //CommonJS
+//const {board} = require('./ExamInput.js');   //CommonJS
 
 // const board = [
 //     ["X", "X", "X", "X", "X", "X", "X"],

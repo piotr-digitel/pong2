@@ -3,15 +3,13 @@ import '../index.css';
 import Square from './square.js';
 import backBall from "../malina.ico";
 import backY from "../038.gif";
-import GameEngine from './gameengine.js';
+//import GameEngine from './gameengine.js';
+
+import GameEngine from './engineClass.js';
 
 //const {boardFile} = require('./ExamInput2.js');   //CommonJS
 
 import boardFile from './ExamInput2.js';
-
-
-
-
 
 export default class Game extends React.Component {
   
@@ -62,7 +60,8 @@ export default class Game extends React.Component {
   onClickHandler=()=>{
     clearInterval();
     let x = 1 + this.state.ballPosition;
-    x = GameEngine(this.state.ballPosition).newPosition;
+    //x = GameEngine(this.state.ballPosition).newPosition;
+    x = GameEngine(boardFile.board, [1,1]).board;
 
     console.log("     pos: " + x);
 
