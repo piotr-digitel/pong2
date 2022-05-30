@@ -10,13 +10,16 @@ import GameEngine from './gameengine.js';
 import boardFile from './ExamInput2.js';
 
 
+
+
+
 export default class Game extends React.Component {
   
   constructor(props) {
     super(props);
     this.tick = this.tick.bind(this);
     this.state = {
-      ballPosition: 13,
+      ballPosition: getBallPosition(boardFile.board),   //reads start pos. from file
       seconds: props.seconds,
     }
     this.isGameStarted = false;
@@ -60,6 +63,8 @@ export default class Game extends React.Component {
     clearInterval();
     let x = 1 + this.state.ballPosition;
     x = GameEngine(this.state.ballPosition).newPosition;
+
+    console.log("     pos: " + x);
 
     this.setState({ ballPosition: x });
     boardFile.board[1][1] = '0';
@@ -168,4 +173,9 @@ export default class Game extends React.Component {
       </div>
     );
   };
+};
+
+function getBallPosition(board){
+  let ballPosition = 13;
+  return ballPosition;
 };
