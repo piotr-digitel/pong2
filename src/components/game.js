@@ -15,31 +15,31 @@ export default class Game extends React.Component {
   
   constructor(props) {
     super(props);
-    this.tick = this.tick.bind(this);
+    //this.tick = this.tick.bind(this);
     this.state = {
-      ballPosition: getBallPosition(boardFile.board),   //reads start pos. from file
+      ballPosition: 0,     //getBallPosition(boardFile.board),   //reads start pos. from file
       seconds: props.seconds,
     }
     this.isGameStarted = false;
+    this.vector = [1, 1];  //initial vector
    };
 
   componentDidMount(){
     this.timer = setInterval(this.tick, 400);
   };
 
-  tick(){
-    if (this.state.seconds > 0) {
-      this.setState({seconds: this.state.seconds - 1})
-    } else {
-      if(this.isGameStarted){
-        clearInterval(this.timer);
-        //tu co ma być wykonywane co jakiś czas
-        let x = GameEngine(this.state.ballPosition, boardFile).newPosition;
-        this.setState({ ballPosition: x });
-        //boardFile[1][13] = 0;
-      }
-    }
-  };
+  // tick(){
+  //   if (this.state.seconds > 0) {
+  //     this.setState({seconds: this.state.seconds - 1})
+  //   } else {
+  //     if(this.isGameStarted){
+  //       clearInterval(this.timer);
+  //       //tu co ma być wykonywane co jakiś czas
+  //       let x = GameEngine(this.state.ballPosition, boardFile).newPosition;
+  //       this.setState({ ballPosition: x });
+  //     }
+  //   }
+  // };
 
   //button handlers
   onClickHandler1=()=>{
@@ -59,32 +59,23 @@ export default class Game extends React.Component {
   
   onClickHandler=()=>{
     clearInterval();
-    let x = 1 + this.state.ballPosition;
-    //x = GameEngine(this.state.ballPosition).newPosition;
-    x = GameEngine(boardFile.board, [1,1]).board;
+    let fromEngine = GameEngine(boardFile.board, this.vector);
 
-    console.log("     pos: " + x);
+    //console.table([fromEngine[2].x , fromEngine[2].y]);
 
-    this.setState({ ballPosition: x });
-    boardFile.board[1][1] = '0';
-    boardFile.board[1][2] = '1';
-   // console.log(this.state.ballPosition);
+    this.setState({ ballPosition: fromEngine });
+    boardFile.board[fromEngine[0].x][fromEngine[0].y] = '0';
+    boardFile.board[fromEngine[1].x][fromEngine[1].y] = '1';
+    this.vector = [fromEngine[2].x , fromEngine[2].y];
   };
 
   renderSquare(i, squareShade, typeSquare) {
-    //testowo dla piłki i dla Y
-  //  if(i === this.state.ballPosition) typeSquare = '1';
-   // if(i === 18) typeSquare = 'Y';
     let SquareBackground;
-
     if(typeSquare === '1'){           //ball square
       SquareBackground = backBall;
-      console.log("ball: " + i);
     }else if(typeSquare === 'Y'){     //Y square
       SquareBackground = backY;
-      console.log("Y: " + i);
     };
-
 
     if(typeSquare === 'X' || typeSquare === '0'){
       return <Square
@@ -105,18 +96,9 @@ export default class Game extends React.Component {
 
   render() {
     const board = [];
-    // const squareRowFirst = [];
-    // const squareRowLast = [];
-    // const boardX=7;
-    // const boardY=10;
-    //let typeSquare = 0;
-
-
-    //console.log(boardFile.board.length);
 
     for (let i = 0; i < boardFile.board.length ; i++) {
       let squareRow = [];
-      //console.log("row: " + i + " " + boardFile.board[i].length);
       for (let j = 0; j < boardFile.board[i].length ; j++) {
          if(boardFile.board[i][j] === '0') {
              squareRow.push(this.renderSquare((i*12 + j), "grass-square", boardFile.board[i][j]));
@@ -131,32 +113,6 @@ export default class Game extends React.Component {
       board.push(<div className="board-row" key={(i+1000)}>{squareRow}</div>);
     };
     
-
-
-
-
-    // //first row
-    // for (let i = 0; i < boardX; i++) {
-    //   squareRowFirst.push(this.renderSquare((i), "brick-square", typeSquare));  
-    // }
-    // board.push(<div className="board-row" key={0}>{squareRowFirst}</div>)
-    // //inner rows
-    // for (let i = 1; i < boardY-1; i++) {
-    //   const squareRows = [];
-    //   squareRows.push(this.renderSquare((i * boardX) , "brick-square", typeSquare));
-    //   for (let j = 1; j < boardX-1; j++) {
-    //     squareRows.push(this.renderSquare((i * boardX) + j, "grass-square", typeSquare));
-    //   }
-    //   squareRows.push(this.renderSquare((i * boardX) + boardY-1, "brick-square", typeSquare));
-    //   board.push(<div className="board-row" key={i}>{squareRows}</div>)
-    // }
-    // //last row
-    // for (let i = (boardX * boardY) - boardX; i < boardX * boardY; i++) {
-    //   squareRowLast.push(this.renderSquare((i), "brick-square", typeSquare));  
-    // }
-    // board.push(<div className="board-row" key={boardY}>{squareRowLast}</div>)  
-
-
     return (
       <div>
         <div className="game">
@@ -174,7 +130,7 @@ export default class Game extends React.Component {
   };
 };
 
-function getBallPosition(board){
-  let ballPosition = 13;
-  return ballPosition;
-};
+// function getBallPosition(board){
+//   let ballPosition = 13;
+//   return ballPosition;
+// };
