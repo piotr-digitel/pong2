@@ -22,6 +22,7 @@ class Ball{
     move(){
       this.newPos.x += this.vector.x;
       this.newPos.y += this.vector.y;
+     // console.log("x: " + this.vector.x + ", y: " + this.vector.y);
     };
 };
   
@@ -42,35 +43,47 @@ class Game {
     };  
  
     makeMove(){
-      if (this.willColideOnYAxis()) this.ball.vector.y *= -1;
-      if (this.willColideOnXAxis()) this.ball.vector.x *= -1;    
-      console.log("x: " + this.ball.vector.x + ", y: " + this.ball.vector.x);
+      //if (this.willColideOnYAxis()) this.ball.vector.y *= -1;
+      //if (this.willColideOnXAxis()) this.ball.vector.x *= -1;    
+
+      this.ball.vector.y = this.willColideOnYAxis(this.ball.vector.y);
+      this.ball.vector.x = this.willColideOnXAxis(this.ball.vector.x);
+
+     // console.log("x: " + this.ball.vector.x + ", y: " + this.ball.vector.y);
       this.ball.move();
     };
 
-    willColideOnYAxis(){
+    willColideOnYAxis(vY){
       // return true if collision in next move on Y axis
       // return false otherwise
-      //if(this.ball.oldPos.y===0 || this.ball.oldPos.y===9) return true;
       
-      console.log("tył: " + this.board[this.ball.oldPos.y-1][this.ball.oldPos.x-1]);
-      console.log("przód: " + this.board[this.ball.oldPos.y+1][this.ball.oldPos.x+1]);
+      //console.log("y tył: " + this.board[this.ball.oldPos.y-1][this.ball.oldPos.x]);
+      //console.log("y przód: " + this.board[this.ball.oldPos.y+1][this.ball.oldPos.x]);
 
-      //if(this.board[this.ball.oldPos.y-1][this.ball.oldPos.x-1] === 'X' || this.board[this.ball.oldPos.y+1][this.ball.oldPos.x+1] === 'X') return true;
+      if(this.board[this.ball.oldPos.y - 1][this.ball.oldPos.x] === 'X') vY = 1;
+      if(this.board[this.ball.oldPos.y + 1][this.ball.oldPos.x] === 'X') vY = -1;
 
-      if(this.board[this.ball.oldPos.y-1][this.ball.oldPos.x-1] === 'X' ) return true;
-
-      return false;
+      return vY;
     } 
 
-    willColideOnXAxis(){
+    willColideOnXAxis(vX){
       // return true if collision in next move on X axis
       // return false otherwise
-      if(this.board[this.ball.oldPos.y-1][this.ball.oldPos.x-1] === 'X' || this.board[this.ball.oldPos.y+1][this.ball.oldPos.x+1] === 'X') return true;
 
+     //console.log("x tył: " + this.board[this.ball.oldPos.y][this.ball.oldPos.x-1]);
+     //console.log("x przód: " + this.board[this.ball.oldPos.y][this.ball.oldPos.x+1]);
 
-      return false;
+     if(this.board[this.ball.oldPos.y][this.ball.oldPos.x-1] === 'X' ) vX = 1;
+     if(this.board[this.ball.oldPos.y][this.ball.oldPos.x+1] === 'X' ) vX = -1;
+
+     return vX;
     }
+
+    getRandomVector(){
+      let randomVector = Math.floor(Math.random() * 2);  //   0/1
+      return randomVector;
+    };
+
 }
   
 function getBall(board, vector){

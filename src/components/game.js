@@ -15,7 +15,7 @@ export default class Game extends React.Component {
   
   constructor(props) {
     super(props);
-    //this.tick = this.tick.bind(this);
+    this.tick = this.tick.bind(this);
     this.state = {
       ballPosition: 0,     //getBallPosition(boardFile.board),   //reads start pos. from file
       seconds: props.seconds,
@@ -25,29 +25,32 @@ export default class Game extends React.Component {
    };
 
   componentDidMount(){
-    this.timer = setInterval(this.tick, 400);
+    this.timer = setInterval(this.tick, 200);
   };
 
-  // tick(){
-  //   if (this.state.seconds > 0) {
-  //     this.setState({seconds: this.state.seconds - 1})
-  //   } else {
-  //     if(this.isGameStarted){
-  //       clearInterval(this.timer);
-  //       //tu co ma być wykonywane co jakiś czas
-  //       let x = GameEngine(this.state.ballPosition, boardFile).newPosition;
-  //       this.setState({ ballPosition: x });
-  //     }
-  //   }
-  // };
+  tick(){
+    if (this.state.seconds > 0) {
+      this.setState({seconds: this.state.seconds - 1})
+    } else {
+      if(this.isGameStarted){
+        clearInterval(this.timer);
+        //tu co ma być wykonywane co jakiś czas
+        let fromEngine = GameEngine(boardFile.board, this.vector);
+        this.setState({ ballPosition: fromEngine });                   //rerender this board
+        boardFile.board[fromEngine[0].y][fromEngine[0].x] = '0';
+        boardFile.board[fromEngine[1].y][fromEngine[1].x] = '1';
+        this.vector = [fromEngine[2].x , fromEngine[2].y];
+      }
+    }
+  };
 
   //button handlers
   onClickHandler1=()=>{
-    this.setState({ ballPosition: 8 });
+   // this.setState({ ballPosition: 8 });
     this.isGameStarted=true;
   };
   onClickHandler2=()=>{
-    this.setState({ ballPosition: 12 });
+   //this.setState({ ballPosition: 12 });
     this.isGameStarted=false;
   };
   onClickHandler3=()=>{
@@ -63,9 +66,9 @@ export default class Game extends React.Component {
 
     //console.table([fromEngine[2].x , fromEngine[2].y]);
 
-    this.setState({ ballPosition: fromEngine });
-    boardFile.board[fromEngine[0].x][fromEngine[0].y] = '0';
-    boardFile.board[fromEngine[1].x][fromEngine[1].y] = '1';
+    this.setState({ ballPosition: fromEngine });             //rerender this board
+    boardFile.board[fromEngine[0].y][fromEngine[0].x] = '0';
+    boardFile.board[fromEngine[1].y][fromEngine[1].x] = '1';
     this.vector = [fromEngine[2].x , fromEngine[2].y];
   };
 
