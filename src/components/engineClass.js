@@ -30,67 +30,50 @@ class Game {
     constructor(ball, board){
       this.ball = ball;    
       this.board = board;
-    }  
+    }; 
 
     start(){
-        this.makeMove();
-        
-        //return ([this.board, this.vector]);
+      this.ball.vector = this.willColide(this.ball.vector.x, this.ball.vector.y);
 
-        //console.table(this.ball.vector);
+      //console.log("x: " + this.ball.vector.x + ", y: " + this.ball.vector.y + " - cel: " + this.board[this.ball.oldPos.y + this.ball.vector.y][this.ball.oldPos.x + this.ball.vector.x]);
 
-        return ([this.ball.oldPos, this.ball.newPos, this.ball.vector]);
+      this.ball.move();
+      return ([this.ball.oldPos, this.ball.newPos, this.ball.vector]);
     };  
  
-    makeMove(){
-      //if (this.willColideOnYAxis()) this.ball.vector.y *= -1;
-      //if (this.willColideOnXAxis()) this.ball.vector.x *= -1;    
+    willColide(vX, vY){
+      if(this.board[this.ball.oldPos.y + vY][this.ball.oldPos.x] === 'X') vY *= -1; //top-down
+      if(this.board[this.ball.oldPos.y][this.ball.oldPos.x + vX] === 'X') vX *= -1; //left-right
+      if(this.board[this.ball.oldPos.y + vY][this.ball.oldPos.x + vX] === 'X') {    //corners
+        vX *= -1; 
+        vY *= -1;
+      };
+      if(this.board[this.ball.oldPos.y + vY][this.ball.oldPos.x + vX] === 'Y') {    //detect 'Y', after calculating new vector
+        //console.log("YYYYY");
+        const randomXY = this.getRandomVector();
+        vX = randomXY[0];
+        vY = randomXY[1];
+      };     
 
-      this.ball.vector.y = this.willColideOnYAxis(this.ball.vector.y);
-      this.ball.vector.x = this.willColideOnXAxis(this.ball.vector.x);
-
-     // console.log("x: " + this.ball.vector.x + ", y: " + this.ball.vector.y);
-      this.ball.move();
+      return {x: vX, y: vY};      //vector is an object
     };
-
-    willColideOnYAxis(vY){
-      // return true if collision in next move on Y axis
-      // return false otherwise
-      
-      //console.log("y tył: " + this.board[this.ball.oldPos.y-1][this.ball.oldPos.x]);
-      //console.log("y przód: " + this.board[this.ball.oldPos.y+1][this.ball.oldPos.x]);
-
-      if(this.board[this.ball.oldPos.y - 1][this.ball.oldPos.x] === 'X') vY = 1;
-      if(this.board[this.ball.oldPos.y + 1][this.ball.oldPos.x] === 'X') vY = -1;
-
-      return vY;
-    } 
-
-    willColideOnXAxis(vX){
-      // return true if collision in next move on X axis
-      // return false otherwise
-
-     //console.log("x tył: " + this.board[this.ball.oldPos.y][this.ball.oldPos.x-1]);
-     //console.log("x przód: " + this.board[this.ball.oldPos.y][this.ball.oldPos.x+1]);
-
-     if(this.board[this.ball.oldPos.y][this.ball.oldPos.x-1] === 'X' ) vX = 1;
-     if(this.board[this.ball.oldPos.y][this.ball.oldPos.x+1] === 'X' ) vX = -1;
-
-     return vX;
-    }
 
     getRandomVector(){
-      let randomVector = Math.floor(Math.random() * 2);  //   0/1
-      return randomVector;
+      let possibleCorners =[];
+      if(1)possibleCorners.push([-1, -1]); //upper left
+      if(1)possibleCorners.push([1, -1]);  //upper right
+      if(1)possibleCorners.push([1, 1]);   //down right
+      if(1)possibleCorners.push([-1, 1]);  //down left
+      let randomIndex = Math.floor(Math.random() * 4);  //   0-3
+      return possibleCorners[randomIndex];
     };
 
-}
+};
   
 function getBall(board, vector){
-    // creates ball object based on passed board
-    // based on board state craete ball
-    // return ball with correct possition and vector
-    //read initial position from ExamInput - find digit "1" in array of arrays
+    // creates ball object 
+    // initial position from ExamInput - find digit "1" in pased board (array of arrays)
+    // return ball with old, new possition and vector
     let posX = 0;
     let posY = 0;
     for(let i = 0; i  < board.length; i++){
@@ -99,28 +82,18 @@ function getBall(board, vector){
             posY = i;
         };
     };
-    //console.log("x: " + posX + " y: " + posY);
-    //find vector - look left if there is "0" then on the right is a fence - must change vector X (for Y the same)
-    let vectorX = vector[0];
-    let vectorY = vector[1];
-    //if (board[posY-1][posX]==="0") vectorY *= -1;
-    //if (board[posY][posX-1]==="0") vectorX *= -1;
 
-    let newVector = new Vector(vectorX, vectorY);
-    let oldPos = new BallPos(posX, posY);         //initial - both pos are the same
+    let newVector = new Vector(vector[0], vector[1]);
+    let oldPos = new BallPos(posX, posY);              //initially both pos: new & old are the same
     let newPos = new BallPos(posX, posY);
-
     let ball = new Ball(oldPos, newPos, newVector);
     //console.table(ball);
     return ball;
 };
   
-
-export default function GameEngine(board, vector) {                  //board and vector from parent - parent changes board
+export default function GameEngine(board, vector) {     //board and vector from parent - only parent can change the board!
   let game = new Game(getBall(board, vector), board); 
   let newBoard = game.start();
-  //console.table(newBoard);
-  //return ([newBoard.oldPos, newBoard.newPos, newBoard.newVector]);   // [[oldX,oldY],[newX,newY],[vX,vY]]
-  return (newBoard);
+  return (newBoard);     // {{oldX,oldY},{newX,newY},{vX,vY}}
 };
 
