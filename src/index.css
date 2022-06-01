@@ -24,13 +24,16 @@ ol, ul {
   background-position: center;
 }
 
-
-/*Board color scheme*/
 .brick-square{
-background-color: #793c20;
+  background-color: #575757;
 }
 
 .grass-square{
-    background-color: #82ce82;
+  background-color: #bebebe;
+}
+
+#btn{
+  margin: 5px;
+  width: 100px;
 }
 

@@ -1,28 +1,27 @@
+//engine for react component
+class BallPos{
+  constructor(x, y){
+    this.x = x;          //   0 - 11 (board width) for ExampleInput2
+    this.y = y;          //   0 - 15 (board hight)
+  };
+};
 
-class Vector{
-    constructor(x, y){
-      this.x = x; //   -1 / 1
-      this.y = y; //   -1 / 1
+class Vector extends BallPos{
+    constructor(x, y, r){
+      super(x, y);
+      this.r = r;        //   false/true
     };
 };
 
-class BallPos{
-  constructor(x, y){
-    this.x = x; //   0 - 11 (board width)
-    this.y = y; //   0 - 15 (board hight)
-  };
-};
-  
 class Ball{
     constructor(oldPos, newPos, vector){
       this.oldPos = oldPos;   //   x, y
       this.newPos = newPos;   //   x, y
-      this.vector = vector;   //   x, y
+      this.vector = vector;   //   x, y, bool
     };  
     move(){
       this.newPos.x += this.vector.x;
       this.newPos.y += this.vector.y;
-     // console.log("x: " + this.vector.x + ", y: " + this.vector.y);
     };
 };
   
@@ -33,41 +32,42 @@ class Game {
     }; 
 
     start(){
-      this.ball.vector = this.willColide(this.ball.vector.x, this.ball.vector.y);
-
-      //console.log("x: " + this.ball.vector.x + ", y: " + this.ball.vector.y + " - cel: " + this.board[this.ball.oldPos.y + this.ball.vector.y][this.ball.oldPos.x + this.ball.vector.x]);
-
+      this.ball.vector = this.willColide(this.ball.vector.x, this.ball.vector.y, this.ball.vector.r);
       this.ball.move();
       return ([this.ball.oldPos, this.ball.newPos, this.ball.vector]);
     };  
  
-    willColide(vX, vY){
-      if(this.board[this.ball.oldPos.y + vY][this.ball.oldPos.x] === 'X') vY *= -1; //top-down
-      if(this.board[this.ball.oldPos.y][this.ball.oldPos.x + vX] === 'X') vX *= -1; //left-right
-      if(this.board[this.ball.oldPos.y + vY][this.ball.oldPos.x + vX] === 'X') {    //corners
+    willColide(vX, vY, randomMove){        
+      if(this.board[this.ball.oldPos.y + vY][this.ball.oldPos.x] === 'X') vY *= -1;   //top-down
+      if(this.board[this.ball.oldPos.y][this.ball.oldPos.x + vX] === 'X') vX *= -1;   //left-right
+      if(this.board[this.ball.oldPos.y + vY][this.ball.oldPos.x + vX] === 'X') {      //corners
         vX *= -1; 
         vY *= -1;
       };
-      if(this.board[this.ball.oldPos.y + vY][this.ball.oldPos.x + vX] === 'Y') {    //detect 'Y', after calculating new vector
-        //console.log("YYYYY");
-        const randomXY = this.getRandomVector();
+
+      if(randomMove){
+        const randomXY = this.getRandomVector(this.ball.oldPos.x , this.ball.oldPos.y);
         vX = randomXY[0];
         vY = randomXY[1];
-      };     
+        randomMove = false;
+      };
 
-      return {x: vX, y: vY};      //vector is an object
+      if(this.board[this.ball.oldPos.y + vY][this.ball.oldPos.x + vX] === 'Y') {    //detect 'Y', in the next move chose random vector
+        randomMove = true;
+      }; 
+      
+      return {x: vX, y: vY, r: randomMove};      //vector is an object
     };
 
-    getRandomVector(){
+    getRandomVector(x, y){
       let possibleCorners =[];
-      if(1)possibleCorners.push([-1, -1]); //upper left
-      if(1)possibleCorners.push([1, -1]);  //upper right
-      if(1)possibleCorners.push([1, 1]);   //down right
-      if(1)possibleCorners.push([-1, 1]);  //down left
-      let randomIndex = Math.floor(Math.random() * 4);  //   0-3
+      if(this.board[y-1][x-1] === '0') possibleCorners.push([-1, -1]);    //can we go to upper left
+      if(this.board[y-1][x+1] === '0') possibleCorners.push([1, -1]);     //             upper right
+      if(this.board[y+1][x-1] === '0') possibleCorners.push([1, 1]);      //             down right
+      if(this.board[y+1][x+1] === '0') possibleCorners.push([-1, 1]);     //             down left
+      const randomIndex = Math.floor(Math.random() * possibleCorners.length);  //  from 0 to max possible corners
       return possibleCorners[randomIndex];
     };
-
 };
   
 function getBall(board, vector){
@@ -83,17 +83,16 @@ function getBall(board, vector){
         };
     };
 
-    let newVector = new Vector(vector[0], vector[1]);
-    let oldPos = new BallPos(posX, posY);              //initially both pos: new & old are the same
-    let newPos = new BallPos(posX, posY);
-    let ball = new Ball(oldPos, newPos, newVector);
-    //console.table(ball);
+    const newVector = new Vector(...vector);
+    const oldPos = new BallPos(posX, posY);               //initially both pos: new & old are the same
+    const newPos = new BallPos(posX, posY);
+    const ball = new Ball(oldPos, newPos, newVector);
     return ball;
 };
   
-export default function GameEngine(board, vector) {     //board and vector from parent - only parent can change the board!
-  let game = new Game(getBall(board, vector), board); 
-  let newBoard = game.start();
-  return (newBoard);     // {{oldX,oldY},{newX,newY},{vX,vY}}
+export default function GameEngine(board, vector) {      //board and vector from parent - only parent can change the board!
+  const game = new Game(getBall(board, vector), board); 
+  const newBoard = game.start();
+  //console.table(newBoard);
+  return (newBoard);     // {{oldX, oldY}, {newX, newY}, {vX, vY, r}}
 };
-
