@@ -3,7 +3,7 @@ import '../index.css';
 import Square from './square.js';
 import backBall from "../rpi.gif";
 import backY from "../logowin.gif";
-import GameEngine from './engineClass.js';
+import GameEngine from './gameEngine.js';
 import boardFile from './ExamInput2.js';
 import { Button } from "@mui/material";
 
